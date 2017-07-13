@@ -8,7 +8,7 @@ var h = window.setInterval(function(){
             var btn = document.createElement('button');
             btn.value = btn.innerHTML = 'Generate Report';            
             btn.onclick = generateSprintReport;
-            btn.className = 'aui-button ghx-actions-tools';
+            btn.className = 'aui-button aui-button-primary ghx-actions-tools';
             var area = $('.ghx-view-section')[0];
             area.insertBefore(btn, area.firstChild);
         });
