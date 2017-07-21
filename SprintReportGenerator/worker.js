@@ -84,16 +84,50 @@ function generateSprintReport(){
     var backlog = parseSprint(backlogEl, true);
     backlog.report();
 }
+function generateStoryTitle(event){
+    console.clear();
+    var parentEl = $('#parent_issue_summary')[0];
+    var curtEl = $('#key-val')[0];
+    var titleEl = $('#summary-val')[0];
+    var item = {
+        title:titleEl.firstChild.nodeValue
+    };
+    if (parentEl){
+        item.id = parentEl.getAttribute('data-issue-key');
+        item.cid = curtEl.getAttribute('data-issue-key');
+    }else{
+        item.id = curtEl.getAttribute('data-issue-key');
+    }
+    var titleContent = item.id + " " + (item.cid?"("+item.cid+") ":" ") + item.title;
+    console.log(titleContent);
+    $('#quickSearchInput').val(titleContent);
+    $('#quickSearchInput')[0].select();
+    document.execCommand('copy');
+    return titleContent;
+}
+function parseUrl(url){
+    if (url.indexOf('pd/secure')>0){
+        var btn = document.createElement('button');
+        btn.value = btn.innerHTML = 'Generate Report';            
+        btn.onclick = generateSprintReport;
+        btn.className = 'aui-button aui-button-primary ghx-actions-tools';
+        var area = $('.ghx-view-section')[0];
+        area.insertBefore(btn, area.firstChild);
+    }else if (url.indexOf('pd/browse')>0){
+        var btn = document.createElement('button');
+        btn.value = btn.innerHTML = 'Generate Title';            
+        btn.onclick = generateStoryTitle;
+        btn.className = 'aui-button aui-button-primary ghx-actions-tools generate_title';
+        var area = $('header div.aui-page-header-actions')[0];
+        area.insertBefore(btn, area.firstChild);
+    }
+}
 var h = window.setInterval(function(){
     if ($){
         window.clearInterval(h);
+
         $(function(){
-            var btn = document.createElement('button');
-            btn.value = btn.innerHTML = 'Generate Report';            
-            btn.onclick = generateSprintReport;
-            btn.className = 'aui-button aui-button-primary ghx-actions-tools';
-            var area = $('.ghx-view-section')[0];
-            area.insertBefore(btn, area.firstChild);
+            parseUrl(window.location.href);
         });
     }
 },500);

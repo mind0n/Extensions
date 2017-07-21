@@ -10,7 +10,10 @@
     "default_popup": "popup.html"
   },
   "content_scripts":[{
-    "matches": ["https://pd/secure/RapidBoard.jspa?*"]
+    "matches": [
+      "https://pd/secure/RapidBoard.jspa?*"
+      , "https://pd/browse/*"
+    ]
     ,"js":["loader.js"]
   }]
   , "web_accessible_resources": ["worker.js", "loader.js"]
