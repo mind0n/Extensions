@@ -3,14 +3,28 @@ function parseSprintItem(itemEl){
     var id = $(itemEl).find('a.js-key-link').prop('title');
     var link = $(itemEl).find('a.js-key-link').prop('href');
     var title = $(itemEl).find('span.ghx-inner')[0].innerHTML.trim();
+    var assignEl = $(itemEl).find('.ghx-avatar-img')[0];
+    var assign = assignEl?assignEl.getAttribute('data-tooltip'):'';
+    if (assign){
+        if (assign.indexOf(':')>0){
+            assign = assign.split(':')[1].trim();
+        }
+    }
     var point = parseInt($(itemEl).find('span.ghx-statistic-badge')[0].innerHTML) || 0;
     var t = title.toLowerCase();
     if (t.indexOf('regression')<0 
         && t.indexOf('qa only')<0 
+        && t.indexOf('[qa ')!=0
     ){
-        return {type:type, id:id, link:link, title:title, point:point};
+        return {type:type, id:id, assign:assign.toLowerCase(), link:link, title:title, point:point};
     }
     return null;
+}
+function isoffshore(item){
+    if (!item.assign || (item.assign != 'ellis tian' && item.assign != 'mark yuan' && item.assign != 'matt ma')){
+        return false;
+    }
+    return true;
 }
 function parseSprint(sprintEl, isbacklog){
     var title = isbacklog ? 'Backlog' : $(sprintEl).find('div.ghx-name span, div.ghx-summary span')[0].innerHTML;
@@ -21,7 +35,12 @@ function parseSprint(sprintEl, isbacklog){
         if (itemEl.getAttribute('data-issue-id')){
             var item = parseSprintItem(itemEl);
             if (item){
-                list[list.length] = item;
+                if (!isbacklog && !isoffshore(item)){
+                    item = null;
+                }
+                if (item){
+                    list[list.length] = item;
+                }
             }
         }
     }
@@ -29,6 +48,7 @@ function parseSprint(sprintEl, isbacklog){
         mode:'sprint'
         , title:title
         , list:list
+        , backlog:isbacklog
         , report:function(){
             console.log('===[' + this.title + ']=======================================');
             var point = 0;
@@ -36,7 +56,13 @@ function parseSprint(sprintEl, isbacklog){
             var nongroomed = 0;
             for(var i=0; i<this.list.length; i++){
                 var item = this.list[i];
-                point += item.point;
+                if (!this.backlog){
+                    if (isoffshore(item)){
+                        point += item.point;
+                    }
+                }else{
+                    point += item.point;
+                }
                 if (item.point == 0){
                     nongroomed++;
                 }else{
@@ -49,7 +75,11 @@ function parseSprint(sprintEl, isbacklog){
             console.log('----------------------------------------------------------------------------');
             for(var i=0; i<this.list.length; i++){
                 var item = this.list[i];
-                console.log(item.title);
+                if (this.backlog){
+                    console.log('(' + item.point + ')' + item.title);
+                }else{
+                    console.log('{' + item.assign + '}' + item.title);
+                }
             }
             console.log(' ');
         }
